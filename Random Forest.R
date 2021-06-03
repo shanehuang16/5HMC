@@ -72,7 +72,7 @@ for(i in 1:n){
   rf.model <- randomForest(Pheno ~ .,
                            data=top.train,
                            ntree=100,
-                           mtry=2,
+                           mtry=5,
                            importance=TRUE)
   
   pred <- predict(rf.model, top.test)
