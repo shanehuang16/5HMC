@@ -347,17 +347,17 @@ DESeq.paired.1.p <- data
 DESeq.paired.1.np <- DESeq.paired.1.p
 
 # Select only samples with progressing/non-progressing data
-paired.samps.p <- c("A01","A04","A05","A14","A16","A19","A20","A25","A31","A36","A38","A41","A51","A57",
+paired.samps.1.p <- c("A01","A04","A05","A14","A16","A19","A20","A25","A31","A36","A38","A41","A51","A57",
                     "B01","B04","B05","B14","B16","B19","B20","B25","B31","B36","B38","B41","B51","B57")
-paired.samps.np <- c("A07","A10","A11","A12","A17","A18","A35","A37","A39","A42","A44","A49",
+paired.samps.1.np <- c("A07","A10","A11","A12","A17","A18","A35","A37","A39","A42","A44","A49",
                       "B07","B10","B11","B12","B17","B18","B35","B37","B39","B42","B44","B49")
 
-DESeq.paired.1.p <- DESeq.paired.1.p %>% select(all_of(c("Geneid",paired.samps.p)))
-DESeq.paired.1.np <- DESeq.paired.1.np %>% select(all_of(c("Geneid",paired.samps.np)))
+DESeq.paired.1.p <- DESeq.paired.1.p %>% select(all_of(c("Geneid",paired.samps.1.p)))
+DESeq.paired.1.np <- DESeq.paired.1.np %>% select(all_of(c("Geneid",paired.samps.1.np)))
 
 # Create design matrix
-meta.paired.1.p <- data.frame("ID"=paired.samps.p,"Patient"=as.factor(c(1:14,1:14)), "Time"=as.factor(c(rep("A",14),rep("B",14))))
-meta.paired.1.np <- data.frame("ID"=paired.samps.np,"Patient"=as.factor(c(1:12,1:12)), "Time"=as.factor(c(rep("A",12),rep("B",12))))
+meta.paired.1.p <- data.frame("ID"=paired.samps.1.p,"Patient"=as.factor(c(1:14,1:14)), "Time"=as.factor(c(rep("A",14),rep("B",14))))
+meta.paired.1.np <- data.frame("ID"=paired.samps.1.np,"Patient"=as.factor(c(1:12,1:12)), "Time"=as.factor(c(rep("A",12),rep("B",12))))
 
 dds.paired.1.p <- DESeqDataSetFromMatrix(countData=DESeq.paired.1.p, 
                                          colData=meta.paired.1.p, 
@@ -461,6 +461,117 @@ plot(resLFC.1$log2FoldChange, lfc.paired.1.p$log2FoldChange, pch=16, cex=0.6,
      xlab="Original LFC", ylab="AvsB LFC")
 plot(resLFC.1$log2FoldChange, lfc.paired.1.np$log2FoldChange, pch=16, cex=0.6,
      xlab="Original LFC", ylab="AvsB LFC")
+
+
+
+
+
+
+## Separating Subsets (Time AvB) ----
+
+DESeq.paired.1.pa <- data
+DESeq.paired.1.pb <- data
+
+
+# Select only samples with progressing/non-progressing data (pulled from Subset Analysis Section)
+paired.samps.1.pa <- c("A01", "A04", "A14", "A16", "A25", "A26", "A30", "A31", "A41", "A50",
+                    "B01", "B04", "B14", "B16", "B25", "B26", "B30", "B31", "B41", "B50") ### A15???
+paired.samps.1.pb <- c("A05", "A19", "A20", "A36", "A38", "A43", "A51", "A57",
+                       "B05", "B19", "B20", "B36", "B38", "B43", "B51", "B57")
+
+DESeq.paired.1.pa <- DESeq.paired.1.pa %>% select(all_of(c("Geneid",paired.samps.1.pa)))
+DESeq.paired.1.pb <- DESeq.paired.1.pb %>% select(all_of(c("Geneid",paired.samps.1.pb)))
+
+# Create design matrix
+meta.paired.1.pa <- data.frame("ID"=paired.samps.1.pa,"Patient"=as.factor(c(1:10,1:10)), "Time"=as.factor(c(rep("A",10),rep("B",10))))
+meta.paired.1.pb <- data.frame("ID"=paired.samps.1.pb,"Patient"=as.factor(c(1:8,1:8)), "Time"=as.factor(c(rep("A",8),rep("B",8))))
+
+dds.paired.1.pa <- DESeqDataSetFromMatrix(countData=DESeq.paired.1.pa, 
+                                         colData=meta.paired.1.pa, 
+                                         design=~ Patient + Time, tidy = TRUE)
+
+dds.paired.1.pb <- DESeqDataSetFromMatrix(countData=DESeq.paired.1.pb, 
+                                         colData=meta.paired.1.pb, 
+                                         design=~ Patient + Time, tidy = TRUE)
+
+
+# Run DESeq
+dds.paired.1.pa <- DESeq(dds.paired.1.pa)
+dds.paired.1.pb <- DESeq(dds.paired.1.pb)
+
+lfc.paired.1.pa <- lfcShrink(dds.paired.1.pa, coef="Time_B_vs_A", type="apeglm")
+lfc.paired.1.pb <- lfcShrink(dds.paired.1.pb, coef="Time_B_vs_A", type="apeglm")
+
+head(lfc.paired.1.pa)
+head(lfc.paired.1.pb)
+
+summary(lfc.paired.1.pa)
+summary(lfc.paired.1.pb)
+
+hist(lfc.paired.1.pa$pvalue)
+hist(lfc.paired.1.pb$pvalue)
+
+write.csv(lfc.paired.1.pa,"Additional Files/AvsB Progression A DESeq.csv")
+write.csv(lfc.paired.1.pb,"Additional Files/AvsB Progression B DESeq.csv")
+
+# Normalize data
+normal_RC.paired.1.pa <- as.data.frame(counts(dds.paired.1.pa, normalized = T))
+normal_RC.paired.1.pb <- as.data.frame(counts(dds.paired.1.pb, normalized = T))
+
+
+
+
+## Separating Subsets (Time BvC/D) ----
+
+DESeq.paired.2.pa <- data
+DESeq.paired.2.pb <- data
+
+
+# Select only samples with progressing/non-progressing data (pulled from Subset Analysis Section)
+paired.samps.2.pa <- c("B01", "B04", "B14", "B16", "B25", "B31", "B41",
+                       "D01", "D04", "D14", "D16", "D25", "D31", "D41")
+paired.samps.2.pb <- c("B05", "B19", "B20", "B36", "B38", "B51", "B57",
+                       "D05", "D19", "D20", "C36", "D38", "D51", "D57")
+
+DESeq.paired.2.pa <- DESeq.paired.2.pa %>% select(all_of(c("Geneid",paired.samps.2.pa)))
+DESeq.paired.2.pb <- DESeq.paired.2.pb %>% select(all_of(c("Geneid",paired.samps.2.pb)))
+
+# Create design matrix
+meta.paired.2.pa <- data.frame("ID"=paired.samps.2.pa,"Patient"=as.factor(c(1:7,1:7)), "Time"=as.factor(c(rep("B",7),rep("D",7))))
+meta.paired.2.pb <- data.frame("ID"=paired.samps.2.pb,"Patient"=as.factor(c(1:7,1:7)), "Time"=as.factor(c(rep("B",7),rep("D",7))))
+
+dds.paired.2.pa <- DESeqDataSetFromMatrix(countData=DESeq.paired.2.pa, 
+                                         colData=meta.paired.2.pa, 
+                                         design=~ Patient + Time, tidy = TRUE)
+
+dds.paired.2.pb <- DESeqDataSetFromMatrix(countData=DESeq.paired.2.pb, 
+                                         colData=meta.paired.2.pb, 
+                                         design=~ Patient + Time, tidy = TRUE)
+
+
+# Run DESeq
+dds.paired.2.pa <- DESeq(dds.paired.2.pa)
+dds.paired.2.pb <- DESeq(dds.paired.2.pb)
+
+lfc.paired.2.pa <- lfcShrink(dds.paired.2.pa, coef="Time_D_vs_B", type="apeglm")
+lfc.paired.2.pb <- lfcShrink(dds.paired.2.pb, coef="Time_D_vs_B", type="apeglm")
+
+head(lfc.paired.2.pa)
+head(lfc.paired.2.pb)
+
+summary(lfc.paired.2.pa)
+summary(lfc.paired.2.pb)
+
+hist(lfc.paired.2.pa$pvalue)
+hist(lfc.paired.2.pb$pvalue)
+
+write.csv(lfc.paired.2.pa,"Additional Files/BvsD Progression A DESeq.csv")
+write.csv(lfc.paired.2.pb,"Additional Files/BvsD Progression B DESeq.csv")
+
+# Normalize data
+normal_RC.paired.2.pa <- as.data.frame(counts(dds.paired.2.pa, normalized = T))
+normal_RC.paired.2.pb <- as.data.frame(counts(dds.paired.2.pb, normalized = T))
+
 
 
 
