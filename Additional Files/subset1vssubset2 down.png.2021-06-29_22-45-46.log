@@ -1,0 +1,12 @@
+INFO [2021-06-29 22:45:46] [[1]]
+INFO [2021-06-29 22:45:46] list(a, b)
+INFO [2021-06-29 22:45:46] 
+INFO [2021-06-29 22:45:46] $category.names
+INFO [2021-06-29 22:45:46] c("Subset 1", "Subset 2")
+INFO [2021-06-29 22:45:46] 
+INFO [2021-06-29 22:45:46] $filename
+INFO [2021-06-29 22:45:46] [1] "Additional Files/subset1vssubset2 down.png"
+INFO [2021-06-29 22:45:46] 
+INFO [2021-06-29 22:45:46] $cat.default.pos
+INFO [2021-06-29 22:45:46] [1] "text"
+INFO [2021-06-29 22:45:46] 
